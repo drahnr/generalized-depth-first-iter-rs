@@ -13,6 +13,11 @@ impl<'a> What<'a> {
             children : vec![],
         }
     }
+
+    pub fn add(&mut self, child : What<'a>) {
+        self.children.push(child);
+    }
+
     pub fn iter<'i>(&'a self) -> WhatIter<'i> where 'a : 'i {
         WhatIter::<'i>::new(self)
     }
@@ -23,6 +28,10 @@ impl<'a> What<'a> {
 
     pub fn has_children(&self) -> bool {
         self.children.len() > 0
+    }
+
+    pub fn name(&self) -> &str {
+        self.name
     }
 }
 
@@ -104,5 +113,38 @@ impl<'i> Iterator for WhatRecursiveIter<'i> {
 
 
 fn main() {
-    println!("Hello, world!");
+    println!("cargo test please");
+}
+
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn simple() {
+        let mut root = What::new("root");
+        let mut a0 = What::new("a0");
+        let mut a1 = What::new("a1");
+        let  a0b0 = What::new("a0b0");
+        let  a0b1 = What::new("a0b1");
+        let  a1b0 = What::new("a1b0");
+        let mut a1b1 = What::new("a1b1");
+        let mut a1b1c0 = What::new("a1b1c0");
+        let  a1b1c0d0 = What::new("a1b1c0d0");
+
+        // reverse tree buildup
+        a1b1c0.add(a1b1c0d0);
+        a1b1.add(a1b1c0);
+        a1.add(a1b0);
+        a1.add(a1b1);
+
+        a0.add(a0b0);
+        a0.add(a0b1);
+        root.add(a1);
+        root.add(a0);
+
+        root.iter().for_each(|x| { println!("Iter(plain): {}", x.name() )});
+        root.recursive_iter().for_each(|x| { println!("Iter(recursive): {}", x.name() )});
+    }
 }
